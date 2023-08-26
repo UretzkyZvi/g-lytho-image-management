@@ -1,0 +1,20 @@
+
+{
+    "region" : "eu-central-1",
+    "configuration" : "Debug",
+    "framework"     : "net6.0",
+    "self-contained" : false,
+    "application"    : "ImageManagement",
+    "environment"    : "ImageManagement-test",
+    "enable-xray"    : false,
+    "enhanced-health-type" : "enhanced",
+    "additional-options"   : "",
+    "solution-stack"       : "64bit Amazon Linux 2 v2.5.6 running .NET Core",
+    "environment-type"     : "SingleInstance",
+    "cname"                : "imagemanagement-test",
+    "instance-type"        : "t3a.medium",
+    "key-pair"             : "elasticbean-ec2-key-pair",
+    "instance-profile"     : "lytho-elasticbeanstalk-ec2-role",
+    "service-role"         : "lytho-aws-elasticbeanstalk-service-role",
+    "proxy-server"         : "nginx"
+}
