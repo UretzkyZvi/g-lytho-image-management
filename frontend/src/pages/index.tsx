@@ -1,8 +1,6 @@
-import { fa } from "@faker-js/faker";
 import Head from "next/head";
 import Link from "next/link";
-import { use, useCallback, useEffect, useRef, useState } from "react";
-import { Filters } from "~/components/filters";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ImageDetailsSidebar } from "~/components/image-details.sidebar";
 import { ImageFileWithSignedUrl } from "~/models/image-file-with-signed-url";
 
@@ -14,45 +12,40 @@ export default function Home() {
   const [ulHeight, setUlHeight] = useState("auto");
   const titleRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   // side-bar functionality
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<ImageFileWithSignedUrl>();
 
-  const [filters, setFilters] = useState({
-    name: "",
-    size: "",
-    description: "",
-  });
-
-  const files = api.images.fetch.useQuery(
-    { page, limit: 2, ...filters },
+  const fetchFiles = api.images.fetch.useQuery(
+    { page, limit: 2 },
     {
       enabled: hasMore,
     }
   );
 
   useEffect(() => {
-    setPage(1);
-  }, [filters]);
+    if (fetchFiles.data !== undefined) {
+      // Preload the images
+      fetchFiles.data.data.forEach((item) => {
+        const img = new Image();
+        img.src = item.signedUrl;
+      });
 
-  useEffect(() => {
-    if (files.data !== undefined) {
       setImages((prev) => {
-        const newImages = files.data.data;
+        const newImages = fetchFiles.data.data;
         const existingImageIds = new Set(prev.map((img) => img.imageFile.id));
         const uniqueNewImages = newImages.filter(
           (img) => !existingImageIds.has(img.imageFile.id)
         );
         return [...prev, ...uniqueNewImages];
       });
-      setHasMore(files.data.nextPageLink !== null);
+      setHasMore(fetchFiles.data.nextPageLink !== null);
       fetchingRef.current = false;
     }
     setLoading(false);
-  }, [files.data]);
+}, [fetchFiles.data]);
 
   useEffect(() => {
     const delayCheck = () => {
@@ -181,6 +174,14 @@ export default function Home() {
     [setImages, selectedImage]
   );
 
+  function Spinner() {
+    return (
+      <div className="flex items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-t-2 border-fuchsia-600"></div>
+      </div>
+    );
+  }
+
   return (
     <>
       <Head>
@@ -209,6 +210,7 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col items-center justify-center gap-12 overflow-y-auto ">
+              
               <ul
                 role="list"
                 className="m-2 grid min-h-[550px] grid-cols-2 gap-x-4 gap-y-8 overflow-y-auto sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8"
@@ -246,6 +248,7 @@ export default function Home() {
                       </p>
                     </li>
                   ))}
+                    {fetchFiles.isLoading && <Spinner />}
               </ul>
             </div>
           </div>
