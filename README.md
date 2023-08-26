@@ -56,7 +56,7 @@ Welcome to the technical assessment project for the full-stack developer positio
 
 ## License
 
-This project is licensed under the MIT License. See `LICENSE` for more information.
+This project is licensed under the MIT License.
 
 ## Acknowledgements
 
