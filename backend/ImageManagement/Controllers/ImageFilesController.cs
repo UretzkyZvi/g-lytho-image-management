@@ -37,7 +37,7 @@ namespace ImageManagement.Controllers
             // Calculate the number of documents to skip
             int skip = (page - 1) * limit;
 
-            var filteredFiles = _repository.GetAllImageFiles();
+            var imageFiles = _repository.GetAllImageFiles();
 
             // Sort
             if (order.ToLower() == "desc")
@@ -45,10 +45,10 @@ namespace ImageManagement.Controllers
                 switch (sortBy)
                 {
                     case "Name":
-                        filteredFiles = filteredFiles.OrderByDescending(file => file.Name);
+                        imageFiles = imageFiles.OrderByDescending(file => file.Name);
                         break;
                     case "Date":
-                        filteredFiles = filteredFiles.OrderByDescending(file => file.UpdatedAt);
+                        imageFiles = imageFiles.OrderByDescending(file => file.UpdatedAt);
                         break;
                     // ... add other cases as necessary
                     default:
@@ -60,10 +60,10 @@ namespace ImageManagement.Controllers
                 switch (sortBy)
                 {
                     case "Name":
-                        filteredFiles = filteredFiles.OrderBy(file => file.Name);
+                        imageFiles = imageFiles.OrderBy(file => file.Name);
                         break;
                     case "Date":
-                        filteredFiles = filteredFiles.OrderBy(file => file.UpdatedAt);
+                        imageFiles = imageFiles.OrderBy(file => file.UpdatedAt);
                         break;
                     // ... add other cases as necessary
                     default:
@@ -71,9 +71,9 @@ namespace ImageManagement.Controllers
                 }
             }
 
-            var totalRecords = filteredFiles.Count();
+            var totalRecords = imageFiles.Count();
 
-            var paginatedFiles = filteredFiles.Skip(skip).Take(limit).ToList();
+            var paginatedFiles = imageFiles.Skip(skip).Take(limit).ToList();
 
             var results = paginatedFiles.Select(file =>
             {
@@ -153,7 +153,7 @@ namespace ImageManagement.Controllers
                 catch (Exception ex)
                 {
                     _logger.LogError($"Error processing file {FileUploadedItem.FileName}: {ex.Message}");
-                    return null;  // or handle the error as appropriate for your application
+                    return null;  // TODO: handle the error as appropriate (e.g. return a list of failed files)
                 }
             }).ToList();
 
@@ -211,7 +211,7 @@ namespace ImageManagement.Controllers
                 // 2. Delete the file from Amazon S3
                 var deleteRequest = new DeleteObjectRequest
                 {
-                    BucketName = "images-g-lytho",
+                    BucketName = "images-g-lytho", // TODO: move to config
                     Key = fileInDb.Name
                 };
 
@@ -233,10 +233,10 @@ namespace ImageManagement.Controllers
         {
             var request = new GetPreSignedUrlRequest
             {
-                BucketName = "images-g-lytho",
+                BucketName = "images-g-lytho", // TODO: move to config
                 Key = fileName,
                 Verb = HttpVerb.GET,
-                Expires = DateTime.UtcNow.AddMinutes(10) // or however long you want the URL to be valid for
+                Expires = DateTime.UtcNow.AddMinutes(10)  
             };
 
             return _s3Client.GetPreSignedURL(request);
