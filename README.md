@@ -47,6 +47,7 @@ Welcome to the technical assessment project for the full-stack developer positio
 ## Technologies Used
 
 - **Backend**: .NET Core Web API
+- **Database**: MongoDB Cloud
 - **Frontend**: Next.js hosted on Vercel
 - **Storage**: AWS S3
 - **Deployment**: AWS Elastic Beanstalk
