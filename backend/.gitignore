@@ -549,3 +549,7 @@ FodyWeavers.xsd
 # Additional files built by Visual Studio
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudio,visualstudiocode,aspnetcore,dotnetcore
+
+appsettings.json
+aws-beanstalk-tools-defaults.json
+appsettings.Development.json
