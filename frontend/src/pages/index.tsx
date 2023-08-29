@@ -17,6 +17,7 @@ export default function Home() {
   // side-bar functionality
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<ImageFileWithSignedUrl>();
+  const [imageLoaded, setImageLoaded] = useState<Record<string, boolean>>({});
 
   const fetchFiles = api.images.fetch.useQuery(
     { page, limit: 2 },
@@ -45,7 +46,7 @@ export default function Home() {
       fetchingRef.current = false;
     }
     setLoading(false);
-}, [fetchFiles.data]);
+  }, [fetchFiles.data]);
 
   useEffect(() => {
     const delayCheck = () => {
@@ -210,46 +211,62 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col items-center justify-center gap-12 overflow-y-auto ">
-              
-              <ul
-                role="list"
-                className="m-2 grid min-h-[550px] grid-cols-2 gap-x-4 gap-y-8 overflow-y-auto sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8"
-                style={{ maxHeight: ulHeight }}
-                onScroll={handleScroll}
-              >
-                {images &&
-                  images.map((item, i) => (
-                    <li key={`${item.imageFile.id}_${i}`} className="relative">
-                      <div className="aspect-h-7 aspect-w-10 group  flex min-h-[400px] w-full items-center justify-center overflow-hidden rounded-lg bg-black focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
-                        <img
-                          src={item.signedUrl}
-                          alt=""
-                          className="pointer-events-none max-h-80 w-96 object-cover group-hover:opacity-75"
-                        />
-                      </div>
+              {!images ? (
+                <Spinner />
+              ) : (
+                <>
+                  <ul
+                    role="list"
+                    className="m-2 grid min-h-[550px] grid-cols-2 gap-x-4 gap-y-8 overflow-y-auto sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8"
+                    style={{ maxHeight: ulHeight }}
+                    onScroll={handleScroll}
+                  >
+                    {images.map((item, i) => (
+                        <li
+                          key={`${item.imageFile.id}_${i}`}
+                          className="relative"
+                        >
+                          <div className="aspect-h-7 aspect-w-10 group  flex min-h-[400px] w-full items-center justify-center overflow-hidden rounded-lg bg-black focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
+                            <img
+                              src={item.signedUrl}
+                              alt=""
+                              onLoad={() =>
+                                setImageLoaded({
+                                  ...imageLoaded,
+                                  [item.imageFile.id]: true,
+                                })
+                              }
+                              className={`pointer-events-none max-h-80 w-96 object-cover transition-opacity duration-500 ease-in-out group-hover:opacity-75 ${
+                                imageLoaded[item.imageFile.id]
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              }`}
+                            />
+                          </div>
 
-                      <button
-                        type="button"
-                        className="absolute inset-0 focus:outline-none"
-                        onClick={() => {
-                          handleImageClick(item);
-                        }}
-                      >
-                        <span className="sr-only">
-                          View details for {item.imageFile.name}
-                        </span>
-                      </button>
+                          <button
+                            type="button"
+                            className="absolute inset-0 focus:outline-none"
+                            onClick={() => {
+                              handleImageClick(item);
+                            }}
+                          >
+                            <span className="sr-only">
+                              View details for {item.imageFile.name}
+                            </span>
+                          </button>
 
-                      <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">
-                        {item.imageFile.name}
-                      </p>
-                      <p className="pointer-events-none block text-sm font-medium text-gray-500">
-                        {item.imageFile.size.toPrecision(2)} MB
-                      </p>
-                    </li>
-                  ))}
-                    {fetchFiles.isLoading && <Spinner />}
-              </ul>
+                          <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">
+                            {item.imageFile.name}
+                          </p>
+                          <p className="pointer-events-none block text-sm font-medium text-gray-500">
+                            {item.imageFile.size.toPrecision(2)} MB
+                          </p>
+                        </li>
+                      ))}
+                  </ul>
+                </>
+              )}
             </div>
           </div>
         </div>
